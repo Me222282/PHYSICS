@@ -42,7 +42,7 @@ namespace PHYSICS
         {
             Point p = _path.References[_current];
             Vector2 pos = Resolve.Linear(p, _time);
-            dc.DrawCircle(pos, _ball.Radius, ColourF.Khaki);
+            dc.DrawCircle(pos, 2 * _ball.Radius, ColourF.Khaki);
         }
     }
 }

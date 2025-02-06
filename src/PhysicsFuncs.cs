@@ -22,11 +22,13 @@ namespace PHYSICS
             Vector2 posDiff = a.Location - b.Location;
             floatv gap = a.Radius + b.Radius;
             
+            if (velDiff == 0) { return -1; }
             floatv A = velDiff.SquaredLength;
             floatv B = velDiff.Dot(posDiff);
             floatv C = posDiff.SquaredLength - (gap * gap);
             
             floatv discriminant = (B * B) - (A * C);
+            if (discriminant < 0f) { return -1; }
             discriminant = Maths.Sqrt(discriminant);
             
             floatv div = 1 / A;

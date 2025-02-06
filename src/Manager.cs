@@ -51,7 +51,7 @@ namespace PHYSICS
                     RefObj r2 = new RefObj(j, ObjType.Ball);
                     floatv t = FindCol(o1, o2, time, span, ro, r2);
                         
-                    if (t < span[e1.Index].ColTime)
+                    if (t >= 0 && (e1.IsNone() || t < span[e1.Index].ColTime))
                     {
                         e1 = ro;
                         e2 = r2;
@@ -81,11 +81,15 @@ namespace PHYSICS
                 (c1.Obj.Velocity, c2.Obj.Velocity) = Resolve.Find(c1.Obj, c2.Obj);
                 _paths[e1.Index].Add(c1);
                 _paths[e2.Index].Add(c2);
+                c1.LastCollide = e2;
+                c2.LastCollide = e1;
                 // span[e1.Index] = c1;
                 // span[e2.Index] = c2;
                 
                 RefObj change1 = e1;
                 RefObj change2 = e2;
+                e1 = new RefObj();
+                e2 = new RefObj();
                 
                 // Update collisions with the changes to the 2 objects
                 // Find missing collisions (ones who lost their earilest collide)
@@ -104,7 +108,7 @@ namespace PHYSICS
                             RefObj r2 = new RefObj(j, ObjType.Ball);
                             floatv t = FindCol(o1, o2, time, span, ro, r2);
                             
-                            if (t < span[e1.Index].ColTime)
+                            if (t >= 0 && (e1.IsNone() || t < span[e1.Index].ColTime))
                             {
                                 e1 = ro;
                                 e2 = r2;
@@ -118,7 +122,7 @@ namespace PHYSICS
                         Wrap<Ball> o2 = span[change1.Index];
                         floatv t = FindCol(o1, o2, time, span, ro, change1);
                         
-                        if (t < span[e1.Index].ColTime)
+                        if (t >= 0 && (e1.IsNone() || t < span[e1.Index].ColTime))
                         {
                             e1 = ro;
                             e2 = change1;
@@ -127,7 +131,7 @@ namespace PHYSICS
                         Wrap<Ball> o3 = span[change2.Index];
                         t = FindCol(o1, o2, time, span, ro, change2);
                         
-                        if (t < span[e1.Index].ColTime)
+                        if (t >= 0 && (e1.IsNone() || t < span[e1.Index].ColTime))
                         {
                             e1 = ro;
                             e2 = change2;
@@ -136,6 +140,10 @@ namespace PHYSICS
                     
                     // span[i] = o1;
                 }
+                
+                // remove old last collides
+                // span[change1.Index].LastCollide = new RefObj();
+                // span[change2.Index].LastCollide = new RefObj();
             }
             
             // repeat
@@ -145,8 +153,10 @@ namespace PHYSICS
             Wrap<Ball> o1, Wrap<Ball> o2, floatv time,
             Span<Wrap<Ball>> span, RefObj r1, RefObj r2)
         {
+            if (o1.LastCollide == r2) { return -1; }
+            
             floatv t = Collisions.BallBallLinearOffset(o1.Obj, o2.Obj, o1.ElapsedTime, o2.ElapsedTime);
-            if (t < 0d || o2.ColTime < t || o1.ColTime < t || time < t) { return floatv.MaxValue; }
+            if (t < 0d || o2.ColTime < t || o1.ColTime < t || time < t) { return -1; }
             
             o2.ColTime = t;
             // Remove old collide
@@ -173,6 +183,7 @@ namespace PHYSICS
         
         public T Obj;
         public RefObj Collide;
+        public RefObj LastCollide;
         public floatv ColTime;
         public floatv ElapsedTime;
         public bool CollideTaken;
@@ -190,6 +201,15 @@ namespace PHYSICS
         
         public bool IsNone() => Type == ObjType.None;
         public static RefObj None { get; } = new RefObj(0, ObjType.None);
+        
+        public static bool operator ==(RefObj a, RefObj b)
+        {
+            return a.Type == b.Type && a.Index == b.Index;
+        }
+        public static bool operator !=(RefObj a, RefObj b)
+        {
+            return a.Type != b.Type || a.Index != b.Index;
+        }
     }
     
     public struct Path
