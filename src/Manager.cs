@@ -16,14 +16,17 @@ namespace PHYSICS
     {
         public Manager(Bounds b, floatv e)
         {
-            _bounds = b;
-            _wallElas = e;
+            _walls.Add(new Wall(b.TopLeft, b.BottomLeft, e));
+            _walls.Add(new Wall(b.TopRight, b.BottomRight, e));
+            _walls.Add(new Wall(b.TopLeft, b.TopRight, e));
+            _walls.Add(new Wall(b.BottomLeft, b.BottomRight, e));
         }
         
         private List<Wrap<Ball>> _balls = new List<Wrap<Ball>>(20);
         private List<Path> _paths = new List<Path>(20);
-        private Bounds _bounds;
-        private floatv _wallElas;
+        private List<Wall> _walls = new List<Wall>(8);
+        // private Bounds _bounds;
+        // private floatv _wallElas;
         
         public void AddBall(Ball b)
         {
@@ -49,34 +52,18 @@ namespace PHYSICS
             
             // Find all init collisions
             Span<Wrap<Ball>> span = CollectionsMarshal.AsSpan(_balls);
+            Span<Wall> walls = CollectionsMarshal.AsSpan(_walls);
             for (int i = 0; i < span.Length; i++)
             {
                 Wrap<Ball> o1 = span[i];
                 RefObj ro = new RefObj(i, ObjType.Ball);
                 
-                floatv bt = FindWallCol(o1, span, time);
-                if (bt >= 0 && bt < minT)
+                (RefObj r1, RefObj r2, floatv mt) = FindAllCol(o1, i, span, walls, time, ro);
+                if (mt < minT)
                 {
-                    minT = bt;
-                    e2 = o1.Collide;
-                    e1 = ro;
-                }
-                
-                for (int j = i + 1; j < span.Length; j++)
-                {
-                    Wrap<Ball> o2 = span[j];
-                    
-                    RefObj r2 = new RefObj(j, ObjType.Ball);
-                    floatv t = FindCol(o1, o2, time, span, ro, r2);
-                        
-                    if (t >= 0 && (t < minT))
-                    {
-                        minT = t;
-                        e1 = ro;
-                        e2 = r2;
-                    }
-                    
-                    // span[j] = o2;
+                    minT = mt;
+                    e1 = r1;
+                    e2 = r2;
                 }
                 
                 // span[i] = o1;
@@ -115,10 +102,11 @@ namespace PHYSICS
                 {
                     // Resolve wall collision
                     Wrap<Ball> c1 = span[e1.Index];
+                    Wall w = walls[e2.Index];
                     floatv et = c1.ColTime;
                     c1.Obj.Location = Resolve.Linear(c1.Obj, et - c1.ElapsedTime);
                     c1.ElapsedTime = et;
-                    c1.Obj.Velocity = Resolve.Find(c1.Obj, (1 - e2.Index, e2.Index), _wallElas);
+                    c1.Obj.Velocity = Resolve.Find(c1.Obj, w);
                     _paths[e1.Index].Add(c1);
                     c1.LastCollide = e2;
                     c1.ColTime = floatv.MaxValue;
@@ -141,30 +129,14 @@ namespace PHYSICS
                     
                     if (o1.CollideTaken || i == change1.Index || i == change2.Index)
                     {
-                        floatv bt = FindWallCol(o1, span, time);
-                        if (bt >= 0 && bt < minT)
-                        {
-                            minT = bt;
-                            e2 = o1.Collide;
-                            e1 = ro;
-                        }
-                        
                         o1.CollideTaken = false;
-                        for (int j = i + 1; j < span.Length; j++)
+                        (RefObj r1, RefObj r2, floatv mt) =
+                            FindAllCol(o1, i, span, walls, time, ro);
+                        if (mt < minT)
                         {
-                            Wrap<Ball> o2 = span[j];
-                            
-                            RefObj r2 = new RefObj(j, ObjType.Ball);
-                            floatv t = FindCol(o1, o2, time, span, ro, r2);
-                            
-                            if (t >= 0 && t < minT)
-                            {
-                                minT = t;
-                                e1 = ro;
-                                e2 = r2;
-                            }
-                            
-                            // span[j] = o2;
+                            minT = mt;
+                            e1 = r1;
+                            e2 = r2;
                         }
                     }
                     else
@@ -179,7 +151,7 @@ namespace PHYSICS
                             e2 = change1;
                         }
                         
-                        if (!change2.IsNone())
+                        if (!change2.IsWall())
                         {
                             Wrap<Ball> o3 = span[change2.Index];
                             t = FindCol(o1, o3, time, span, ro, change2);
@@ -240,14 +212,17 @@ namespace PHYSICS
             
             return t;
         }
-        private floatv FindWallCol(Wrap<Ball> o1, Span<Wrap<Ball>> span, floatv time)
+        private static floatv FindWallCol(
+            Wrap<Ball> o1, Span<Wrap<Ball>> span, floatv time,
+            Wall w, RefObj rw)
         {
-            if (o1.LastCollide.IsWall()) { return -1; }
+            if (o1.LastCollide == rw) { return -1; }
             
-            floatv t = Collisions.BallBoundsLinear(o1.Obj, _bounds, o1.ElapsedTime, out bool s);
-            if (t < 0 || o1.ColTime < t || time < t) { return -1; }
+            floatv t = Collisions.BallWallLinearOffset(o1.Obj, w, o1.ElapsedTime);
+            if (t < 0 || o1.ColTime < t ||
+                time < t || t < o1.ElapsedTime) { return -1; }
             
-            if (!o1.Collide.IsNone())
+            if (!o1.Collide.IsNone() && !o1.Collide.IsWall())
             {
                 int i = o1.Collide.Index;
                 span[i].Collide = RefObj.None;
@@ -256,8 +231,47 @@ namespace PHYSICS
             }
             
             o1.ColTime = t;
-            o1.Collide = new RefObj(s);
+            o1.Collide = rw;
             return t;
+        }
+        private static (RefObj, RefObj, floatv) FindAllCol(
+            Wrap<Ball> o1, int i, Span<Wrap<Ball>> span,
+            Span<Wall> walls, floatv time, RefObj ro)
+        {
+            floatv minT = floatv.MaxValue;
+            RefObj e1 = new RefObj();
+            RefObj e2 = new RefObj();
+            
+            for (int j = 0; j < walls.Length; j++)
+            {
+                RefObj rw = new RefObj(j, ObjType.Wall);
+                floatv bt = FindWallCol(o1, span, time, walls[j], rw);
+                if (bt >= 0 && bt < minT)
+                {
+                    minT = bt;
+                    e2 = rw;
+                    e1 = ro;
+                }
+            }
+            
+            for (int j = i + 1; j < span.Length; j++)
+            {
+                Wrap<Ball> o2 = span[j];
+                
+                RefObj r2 = new RefObj(j, ObjType.Ball);
+                floatv t = FindCol(o1, o2, time, span, ro, r2);
+                    
+                if (t >= 0 && (t < minT))
+                {
+                    minT = t;
+                    e1 = ro;
+                    e2 = r2;
+                }
+                
+                // span[j] = o2;
+            }
+            
+            return (e1, e2, minT);
         }
     }
     
@@ -278,11 +292,6 @@ namespace PHYSICS
         {
             Index = i;
             Type = t;
-        }
-        public RefObj(bool s)
-        {
-            Index = s ? 1 : 0;
-            Type = ObjType.Wall;
         }
         
         public int Index;

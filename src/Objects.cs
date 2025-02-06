@@ -32,9 +32,17 @@ namespace PHYSICS
         floatv IObject.Elasticity => Elasticity;
         floatv IObject.Mass => Mass;
     }
-    // public struct Wall
-    // {
-    //     public Vector2 A;
-    //     public Vector2 B;
-    // }
+    public struct Wall
+    {
+        public Wall(Vector2 a, Vector2 b, floatv e)
+        {
+            A = a;
+            B = b;
+            Elasticity = e;
+        }
+        
+        public Vector2 A;
+        public Vector2 B;
+        public floatv Elasticity;
+    }
 }

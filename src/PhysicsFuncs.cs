@@ -57,22 +57,40 @@ namespace PHYSICS
             return BallBallLinear(a, b) + t1;
         }
         
-        public static floatv BallBoundsLinear(Ball a, Bounds b, floatv et, out bool side)
+        public static floatv BallWallLinear(Ball a, Wall w)
         {
-            b = b.Expanded(-a.Radius);
+            Vector2 n = (w.A - w.B).Rotated90();
             
-            Vector2 div = 1 / a.Velocity;
-            floatv t1 = (b.Left - a.Location.X) * div.X;
-            floatv t2 = (b.Right - a.Location.X) * div.X;
-            floatv t3 = (b.Top - a.Location.Y) * div.Y;
-            floatv t4 = (b.Bottom - a.Location.Y) * div.Y;
+            floatv div = 1 / a.Velocity.Dot(n);
+            floatv nl = n.Length;
+            floatv q = (w.A - a.Location).Dot(n);
+            floatv rnl = a.Radius * nl;
+            floatv t1 = (rnl + q) * div;
+            floatv t2 = (q - rnl) * div;
             
-            floatv t = MinMag(MinMag(t1, t2, et), MinMag(t3, t4, et), et);
-            side = t == t3 || t == t4;
+            n *= a.Radius / nl;
+            floatv div2 = 1 / (w.A.X - w.B.X);
             
-            if (t < et) { return -1; }
-            return t;
+            // Outside wall
+            Vector2 p1 = Resolve.Linear(a, t1) - n;
+            floatv u1 = (p1.X - w.B.X) * div2;
+            if (u1 < 0 || u1 > 1)
+            {
+                t1 = -1;
+            }
+            
+            // Outside wall
+            Vector2 p2 = Resolve.Linear(a, t2) + n;
+            floatv u2 = (p2.X - w.B.X) * div2;
+            if (u2 < 0 || u2 > 1)
+            {
+                t2 = -1;
+            }
+            
+            return MinMag(t1, t2);
         }
+        public static floatv BallWallLinearOffset(Ball a, Wall w, floatv t)
+            => BallWallLinear(a, w) + t;
         
         // public static floatv BallBallLinearDrag(Ball a, Ball b, floatv ka, floatv kb)
         // {
@@ -142,18 +160,18 @@ namespace PHYSICS
         public static Vector2 Linear(Point p, floatv t)
             => p.Location + ((t - p.Time) * p.Velocity);
         
-        public static Vector2 Find(Ball a, Vector2 wall, floatv we)
+        public static Vector2 Find(Ball a, Wall wall)
         {
-            floatv e = a.Elasticity * we;
-            Vector2 axis = wall.Rotated90();
+            floatv e = a.Elasticity * wall.Elasticity;
             // axis = axis.Normalised();
-            Vector2 perp = wall;
+            Vector2 perp = wall.A - wall.B;
+            Vector2 axis = perp.Rotated90();
             
             floatv pd = 1 / axis.PerpDot(perp);
             Vector2 u = Align(axis, perp, a.Velocity, pd);
             
             floatv v = u.X * e;
-            return (axis * v) + (perp * u.Y);
+            return -((axis * v) + (perp * u.Y));
         }
     }
 }
