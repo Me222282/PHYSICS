@@ -22,6 +22,16 @@ namespace PHYSICS
             _paths.Add(new Path(b.Location, b.Velocity));
         }
         
+        public void Fill(List<ObjectRender> or)
+        {
+            Span<Wrap<Ball>> span1 = CollectionsMarshal.AsSpan(_balls);
+            Span<Path> span2 = CollectionsMarshal.AsSpan(_paths);
+            for (int i = 0; i < span1.Length; i++)
+            {
+                or.Add(new ObjectRender(span1[i].Obj, span2[i]));
+            }
+        }
+        
         public void ElapseTo(floatv time)
         {
             RefObj e1 = new RefObj();
@@ -199,11 +209,11 @@ namespace PHYSICS
         public Point(Vector2 l, Vector2 v, floatv t)
         {
             Location = l;
-            Veclocity = v;
+            Velocity = v;
             Time = t;
         }
         public Vector2 Location;
-        public Vector2 Veclocity;
+        public Vector2 Velocity;
         public floatv Time;
     }
 }

@@ -111,5 +111,7 @@ namespace PHYSICS
             return r;
         }
         public static Vector2 Linear(Ball b, floatv t) => b.Location + (t * b.Velocity);
+        public static Vector2 Linear(Point p, floatv t)
+            => p.Location + ((t - p.Time) * p.Velocity);
     }
 }
