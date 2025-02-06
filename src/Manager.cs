@@ -93,12 +93,12 @@ namespace PHYSICS
                     Wrap<Ball> c1 = span[e1.Index];
                     Wrap<Ball> c2 = span[e2.Index];
                     floatv et = c1.ColTime;
-                    c1.ElapsedTime = et;
-                    c2.ElapsedTime = et;
                     
                     // update pos
-                    c1.Obj.Location = Resolve.Linear(c1.Obj, et);
-                    c2.Obj.Location = Resolve.Linear(c2.Obj, et);
+                    c1.Obj.Location = Resolve.Linear(c1.Obj, et - c1.ElapsedTime);
+                    c2.Obj.Location = Resolve.Linear(c2.Obj, et - c2.ElapsedTime);
+                    c1.ElapsedTime = et;
+                    c2.ElapsedTime = et;
                     (c1.Obj.Velocity, c2.Obj.Velocity) = Resolve.Find(c1.Obj, c2.Obj);
                     _paths[e1.Index].Add(c1);
                     _paths[e2.Index].Add(c2);
@@ -116,8 +116,8 @@ namespace PHYSICS
                     // Resolve wall collision
                     Wrap<Ball> c1 = span[e1.Index];
                     floatv et = c1.ColTime;
+                    c1.Obj.Location = Resolve.Linear(c1.Obj, et - c1.ElapsedTime);
                     c1.ElapsedTime = et;
-                    c1.Obj.Location = Resolve.Linear(c1.Obj, et);
                     c1.Obj.Velocity = Resolve.Find(c1.Obj, (1 - e2.Index, e2.Index), _wallElas);
                     _paths[e1.Index].Add(c1);
                     c1.LastCollide = e2;
@@ -210,8 +210,10 @@ namespace PHYSICS
         {
             if (o1.LastCollide == r2) { return -1; }
             
+            // Too far out of sync
+            if (o2.ColTime < o1.ElapsedTime || o1.ColTime < o2.ElapsedTime) { return -1; }
             floatv t = Collisions.BallBallLinearOffset(o1.Obj, o2.Obj, o1.ElapsedTime, o2.ElapsedTime);
-            if (t < 0d || o2.ColTime < t || o1.ColTime < t ||
+            if (t < 0 || o2.ColTime < t || o1.ColTime < t ||
                 time < t || t < o1.ElapsedTime || t < o2.ElapsedTime) { return -1; }
             
             // Remove old collide
@@ -243,7 +245,7 @@ namespace PHYSICS
             if (o1.LastCollide.IsWall()) { return -1; }
             
             floatv t = Collisions.BallBoundsLinear(o1.Obj, _bounds, o1.ElapsedTime, out bool s);
-            if (t < 0d || o1.ColTime < t || time < t) { return -1; }
+            if (t < 0 || o1.ColTime < t || time < t) { return -1; }
             
             if (!o1.Collide.IsNone())
             {

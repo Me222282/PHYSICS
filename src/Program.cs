@@ -52,11 +52,13 @@ namespace PHYSICS
             : base(width, height, title)
         {
             m.Fill(_renders);
+            _tr = new TextRenderer();
         }
         
         private floatv _time = 0;
         private bool _playing = false;
         private List<ObjectRender> _renders = new List<ObjectRender>(20);
+        private TextRenderer _tr;
         
         private void ElapseTime(floatv time)
         {
@@ -93,6 +95,7 @@ namespace PHYSICS
             
             Vector2I s = Size;
             e.Context.Projection = Matrix4.CreateOrthographic(s.X, s.Y, 0f, 1f);
+            e.Context.Model = Matrix.Identity;
             
             e.Context.DrawBorderBox(BOUNDS, ColourF.Zero, 5, ColourF.DarkGreen);
             
@@ -101,6 +104,9 @@ namespace PHYSICS
             {
                 e.Context.Render(span[i]);
             }
+            
+            e.Context.Model = new STMatrix(15, (0, s.Y * 0.5f - 15));
+            _tr.DrawCentred(e.Context, $"{_time}", Shapes.SampleFont, 0, 0);
         }
 
         protected override void OnKeyDown(KeyEventArgs e)
