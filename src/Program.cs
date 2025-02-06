@@ -25,11 +25,13 @@ namespace PHYSICS
 {
     class Program : Window
     {
+        private static Bounds BOUNDS = new Bounds(-100, 100, 100, -100);
+        
         static void Main(string[] args)
         {
             Core.Init();
             
-            Manager m = new Manager();
+            Manager m = new Manager(BOUNDS, 1);
             
             m.AddBall(new Ball(0f, (20f, 5f), 0.8f, 10f, 1f));
             m.AddBall(new Ball((30, 0), (-10f, 10f), 0.8f, 10f, 1f));
@@ -77,11 +79,22 @@ namespace PHYSICS
             
             if (_playing)
             {
-                ElapseTime(e.DeltaTime);
+                floatv dt = e.DeltaTime;
+                if (this[Keys.LeftShift])
+                {
+                    dt *= 2;
+                }
+                if (this[Keys.LeftAlt])
+                {
+                    dt *= 4;
+                }
+                ElapseTime(dt);
             }
             
             Vector2I s = Size;
             e.Context.Projection = Matrix4.CreateOrthographic(s.X, s.Y, 0f, 1f);
+            
+            e.Context.DrawBorderBox(BOUNDS, ColourF.Zero, 5, ColourF.DarkGreen);
             
             Span<ObjectRender> span = CollectionsMarshal.AsSpan(_renders);
             for (int i = 0; i < span.Length; i++)
@@ -107,6 +120,11 @@ namespace PHYSICS
             if (e[Keys.Left])
             {
                 ElapseTime(-0.01f);
+                return;
+            }
+            if (e[Keys.Enter])
+            {
+                ElapseTime(-_time);
                 return;
             }
         }
