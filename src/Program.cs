@@ -37,5 +37,7 @@ namespace PHYSICS
         {
             
         }
+        
+        private floatv _time;
     }
 }
