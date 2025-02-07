@@ -35,7 +35,7 @@ namespace PHYSICS
             
             m.AddBall(new Ball(0f, (20f, 5f), 0.8f, 10f, 1f));
             m.AddBall(new Ball((30, 0), (-10f, 10f), 0.8f, 10f, 1f));
-            m.ElapseTo(100f);
+            m.ElapseTo(200f);
             
             Program p = new Program(800, 500, "WEEEEEEEEE", m);
             p.Run();
