@@ -4,6 +4,12 @@ using Zene.Structs;
 
 namespace PHYSICS
 {
+    public enum ObjType : byte
+    {
+        None = 0,
+        Ball,
+        Wall
+    }
     public class Wrap<T> where T : IObject
     {
         public Wrap(T t) { Obj = t; ColTime = floatv.MaxValue; }

@@ -35,11 +35,6 @@ namespace PHYSICS
             m.AddWall(new Wall((150, 70), (120, 100), 1));
             m.AddWall(new Wall((150, -70), (120, -100), 1));
             
-            // m.AddBall(new Ball(0f, (20f, 5f), 0.8f, 10f, 1f));
-            // m.AddBall(new Ball((30, 0), (-10f, 10f), 0.8f, 10f, 1f));
-            // m.AddBall(new Ball((-30, 0), (-5f, 15f), 0.8f, 10f, 1f));
-            // m.AddBall(new Ball((0, -30), (10f, 10f), 0.8f, 10f, 1f));
-            
             m.AddBall(new Ball((-70, 0), (500f, 5f), 0.8f, 10f, 1f));
             m.AddBall(new Ball((30, 0), 0, 0.8f, 10f, 1f));
             m.AddBall(new Ball((55, 0), 0, 0.8f, 10f, 1f));
@@ -52,7 +47,7 @@ namespace PHYSICS
             m.AddBall(new Ball((80, -50), 0, 0.8f, 10f, 1f));
             m.ElapseTo(1000f);
             
-            Program p = new Program(800, 500, "WEEEEEEEEE", m);
+            Program p = new Program(800, 500, "PHYSICS", m);
             p.Run();
             p.Dispose();
             

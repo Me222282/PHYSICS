@@ -5,13 +5,6 @@ using Zene.Structs;
 
 namespace PHYSICS
 {
-    public enum ObjType
-    {
-        None = 0,
-        Ball,
-        Wall
-    }
-    
     public class Manager
     {
         public Manager(Bounds b, floatv e)
@@ -25,8 +18,6 @@ namespace PHYSICS
         private List<Wrap<Ball>> _balls = new List<Wrap<Ball>>(20);
         private List<Path> _paths = new List<Path>(20);
         private List<Wall> _walls = new List<Wall>(8);
-        // private Bounds _bounds;
-        // private floatv _wallElas;
         
         public floatv Elapsed { get; private set; }
         public List<Wall> Walls => _walls;
@@ -158,11 +149,6 @@ namespace PHYSICS
                     Wrap<Ball> o1 = span[i];
                     RefObj ro = new RefObj(i, ObjType.Ball);
                     
-                    if (i == 0)
-                    {
-                        
-                    }
-                    
                     // all potential checks covered here
                     if (o1.CollideTaken || i == change1.Index
                         || (!change2.IsWall() && i == change2.Index))
@@ -170,17 +156,6 @@ namespace PHYSICS
                         o1.CollideTaken = false;
                         FindAllCol(o1, -1, span, walls, time, ro);
                     }
-                    // else
-                    // {
-                    //     Wrap<Ball> o2 = span[change1.Index];
-                    //     FindCol(o1, o2, time, span, ro, change1);
-                        
-                    //     if (!change2.IsWall())
-                    //     {
-                    //         Wrap<Ball> o3 = span[change2.Index];
-                    //         FindCol(o1, o3, time, span, ro, change2);
-                    //     }
-                    // }
                     
                     // check all availiable collisions for earliest
                     if (o1.ColTime < minT)
@@ -197,8 +172,6 @@ namespace PHYSICS
                 // span[change1.Index].LastCollide = new RefObj();
                 // span[change2.Index].LastCollide = new RefObj();
             }
-            
-            // repeat
         }
         
         private static floatv FindCol(
