@@ -297,7 +297,7 @@ namespace PHYSICS
         //     }
         // }
         
-        private bool _enter = false;
+        // private bool _enter = false;
         protected override void OnKeyDown(KeyEventArgs e)
         {
             base.OnKeyDown(e);
@@ -307,11 +307,11 @@ namespace PHYSICS
                 Close();
                 return;
             }
-            if (e[Keys.Enter])
-            {
-                _enter = true;
-                return;
-            }
+            // if (e[Keys.Enter])
+            // {
+            //     _enter = true;
+            //     return;
+            // }
             // if (e[Keys.N])
             // {
             //     _index++;
