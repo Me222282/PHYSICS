@@ -40,14 +40,14 @@ namespace PHYSICS
             
             m.AddBall(new Ball((-70, 0), (500f, 5f), 0.8f, 10f, 1f));
             m.AddBall(new Ball((20, 0), 0, 0.8f, 10f, 1f));
-            m.AddBall(new Ball((50, 0), 0, 0.8f, 10f, 1f));
-            m.AddBall(new Ball((80, 0), 0, 0.8f, 10f, 1f));
-            m.AddBall(new Ball((50, 30), 0, 0.8f, 10f, 1f));
-            m.AddBall(new Ball((50, -30), 0, 0.8f, 10f, 1f));
-            m.AddBall(new Ball((80, 30), 0, 0.8f, 10f, 1f));
-            m.AddBall(new Ball((80, -30), 0, 0.8f, 10f, 1f));
-            m.AddBall(new Ball((80, 60), 0, 0.8f, 10f, 1f));
-            m.AddBall(new Ball((80, -60), 0, 0.8f, 10f, 1f));
+            m.AddBall(new Ball((45, 0), 0, 0.8f, 10f, 1f));
+            m.AddBall(new Ball((70, 0), 0, 0.8f, 10f, 1f));
+            m.AddBall(new Ball((45, 25), 0, 0.8f, 10f, 1f));
+            m.AddBall(new Ball((45, -25), 0, 0.8f, 10f, 1f));
+            m.AddBall(new Ball((70, 25), 0, 0.8f, 10f, 1f));
+            m.AddBall(new Ball((70, -25), 0, 0.8f, 10f, 1f));
+            m.AddBall(new Ball((70, 50), 0, 0.8f, 10f, 1f));
+            m.AddBall(new Ball((70, -50), 0, 0.8f, 10f, 1f));
             m.ElapseTo(1000f);
             
             Program p = new Program(800, 500, "WEEEEEEEEE", m);
