@@ -162,7 +162,7 @@ namespace PHYSICS
                         || (!change2.IsWall() && i == change2.Index))
                     {
                         o1.CollideTaken = false;
-                        FindAllCol(o1, 0, span, walls, time, ro);
+                        FindAllCol(o1, -1, span, walls, time, ro);
                     }
                     // else
                     // {
