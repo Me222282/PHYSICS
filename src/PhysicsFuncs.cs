@@ -69,22 +69,30 @@ namespace PHYSICS
             floatv t2 = (q - rnl) * div;
             
             n *= a.Radius / nl;
-            floatv div2 = 1 / (w.A.X - w.B.X);
-            
             // Outside wall
             Vector2 p1 = Resolve.Linear(a, t1) - n;
-            floatv u1 = (p1.X - w.B.X) * div2;
-            if (u1 < 0 || u1 > 1)
-            {
-                t1 = -1;
-            }
-            
-            // Outside wall
             Vector2 p2 = Resolve.Linear(a, t2) + n;
-            floatv u2 = (p2.X - w.B.X) * div2;
-            if (u2 < 0 || u2 > 1)
+            
+            floatv div2;
+            if (w.A.X - w.B.X == 0)
             {
-                t2 = -1;
+                div2 = 1 / (w.A.Y - w.B.Y);
+                
+                floatv u1 = (p1.Y - w.B.Y) * div2;
+                if (u1 < 0 || u1 > 1) { t1 = -1; }
+                
+                floatv u2 = (p2.Y - w.B.Y) * div2;
+                if (u2 < 0 || u2 > 1) { t2 = -1; }
+            }
+            else
+            {
+                div2 = 1 / (w.A.X - w.B.X);
+                
+                floatv u1 = (p1.X - w.B.X) * div2;
+                if (u1 < 0 || u1 > 1) { t1 = -1; }
+                
+                floatv u2 = (p2.X - w.B.X) * div2;
+                if (u2 < 0 || u2 > 1) { t2 = -1; }
             }
             
             return MinMag(t1, t2);

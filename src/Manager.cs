@@ -28,6 +28,8 @@ namespace PHYSICS
         // private Bounds _bounds;
         // private floatv _wallElas;
         
+        public floatv Elapsed { get; private set; }
+        
         public void AddBall(Ball b)
         {
             _balls.Add(new Wrap<Ball>(b));
@@ -46,6 +48,9 @@ namespace PHYSICS
         
         public void ElapseTo(floatv time)
         {
+            if (time < Elapsed) { return; }
+            Elapsed = time;
+            
             RefObj e1 = new RefObj();
             RefObj e2 = new RefObj();
             floatv minT = floatv.MaxValue;
@@ -147,22 +152,29 @@ namespace PHYSICS
                     Wrap<Ball> o1 = span[i];
                     RefObj ro = new RefObj(i, ObjType.Ball);
                     
-                    if (o1.CollideTaken || i == change1.Index || i == change2.Index)
+                    if (i == 0)
+                    {
+                        
+                    }
+                    
+                    // all potential checks covered here
+                    if (o1.CollideTaken || i == change1.Index
+                        || (!change2.IsWall() && i == change2.Index))
                     {
                         o1.CollideTaken = false;
-                        FindAllCol(o1, i, span, walls, time, ro);
+                        FindAllCol(o1, 0, span, walls, time, ro);
                     }
-                    else
-                    {
-                        Wrap<Ball> o2 = span[change1.Index];
-                        FindCol(o1, o2, time, span, ro, change1);
+                    // else
+                    // {
+                    //     Wrap<Ball> o2 = span[change1.Index];
+                    //     FindCol(o1, o2, time, span, ro, change1);
                         
-                        if (!change2.IsWall())
-                        {
-                            Wrap<Ball> o3 = span[change2.Index];
-                            FindCol(o1, o3, time, span, ro, change2);
-                        }
-                    }
+                    //     if (!change2.IsWall())
+                    //     {
+                    //         Wrap<Ball> o3 = span[change2.Index];
+                    //         FindCol(o1, o3, time, span, ro, change2);
+                    //     }
+                    // }
                     
                     // check all availiable collisions for earliest
                     if (o1.ColTime < minT)

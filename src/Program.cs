@@ -35,6 +35,8 @@ namespace PHYSICS
             
             m.AddBall(new Ball(0f, (20f, 5f), 0.8f, 10f, 1f));
             m.AddBall(new Ball((30, 0), (-10f, 10f), 0.8f, 10f, 1f));
+            m.AddBall(new Ball((-30, 0), (-5f, 15f), 0.8f, 10f, 1f));
+            // m.AddBall(new Ball((0, -30), (10f, 10f), 0.8f, 10f, 1f));
             m.ElapseTo(200f);
             
             Program p = new Program(800, 500, "WEEEEEEEEE", m);
@@ -53,9 +55,11 @@ namespace PHYSICS
         {
             m.Fill(_renders);
             _tr = new TextRenderer();
+            _et = m.Elapsed;
         }
         
         private floatv _time = 0;
+        private readonly floatv _et;
         private bool _playing = false;
         private List<ObjectRender> _renders = new List<ObjectRender>(20);
         private TextRenderer _tr;
@@ -63,7 +67,7 @@ namespace PHYSICS
         private void ElapseTime(floatv time)
         {
             time += _time;
-            if (time < 0) { return; }
+            if (time < 0 || time > _et) { return; }
             
             Span<ObjectRender> span = CollectionsMarshal.AsSpan(_renders);
             for (int i = 0; i < span.Length; i++)
