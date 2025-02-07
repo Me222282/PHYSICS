@@ -66,7 +66,7 @@ namespace PHYSICS
         public Program(int width, int height, string title, Manager m)
             : base(width, height, title)
         {
-            m.Fill(_renders);
+            _total = m.Fill(_renders);
             _walls = m.Walls;
             _tr = new TextRenderer();
             _et = m.Elapsed;
@@ -76,6 +76,7 @@ namespace PHYSICS
         private readonly floatv _et;
         private bool _playing = false;
         private bool _reversed = false;
+        private int _total;
         private List<ObjectRender> _renders = new List<ObjectRender>(20);
         private List<Wall> _walls;
         private TextRenderer _tr;
@@ -138,7 +139,14 @@ namespace PHYSICS
             }
             
             e.Context.Model = new STMatrix(15, (0, s.Y * 0.5f - 15));
-            _tr.DrawCentred(e.Context, $"{_time}", Shapes.SampleFont, 0, 0);
+            if (this[Keys.T])
+            {
+                _tr.DrawCentred(e.Context, $"{_total}", Shapes.SampleFont, 0, 0);
+            }
+            else
+            {
+                _tr.DrawCentred(e.Context, $"{_time}", Shapes.SampleFont, 0, 0);
+            }
         }
         
         private static void DrawLine(IDrawingContext dc, Vector2 a, Vector2 b, floatv thick)

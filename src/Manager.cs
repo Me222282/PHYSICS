@@ -38,14 +38,18 @@ namespace PHYSICS
         }
         public void AddWall(Wall w) => _walls.Add(w);
         
-        public void Fill(List<ObjectRender> or)
+        public int Fill(List<ObjectRender> or)
         {
+            int t = 0;
             Span<Wrap<Ball>> span1 = CollectionsMarshal.AsSpan(_balls);
             Span<Path> span2 = CollectionsMarshal.AsSpan(_paths);
             for (int i = 0; i < span1.Length; i++)
             {
-                or.Add(new ObjectRender(span1[i].Obj, span2[i]));
+                Path p = span2[i];
+                or.Add(new ObjectRender(span1[i].Obj, p));
+                t += p.References.Count - 1;
             }
+            return t;
         }
         
         public void ElapseTo(floatv time)
