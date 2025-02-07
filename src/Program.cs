@@ -25,13 +25,15 @@ namespace PHYSICS
 {
     class Program : Window
     {
-        private static Bounds BOUNDS = new Bounds(-100, 100, 100, -100);
-        
         static void Main(string[] args)
         {
             Core.Init();
             
-            Manager m = new Manager(BOUNDS, 1);
+            Manager m = new Manager(new Bounds(-150, 150, 100, -100), 1);
+            m.AddWall(new Wall((-150, 70), (-120, 100), 1));
+            m.AddWall(new Wall((-150, -70), (-120, -100), 1));
+            m.AddWall(new Wall((150, 70), (120, 100), 1));
+            m.AddWall(new Wall((150, -70), (120, -100), 1));
             
             // m.AddBall(new Ball(0f, (20f, 5f), 0.8f, 10f, 1f));
             // m.AddBall(new Ball((30, 0), (-10f, 10f), 0.8f, 10f, 1f));
@@ -39,15 +41,15 @@ namespace PHYSICS
             // m.AddBall(new Ball((0, -30), (10f, 10f), 0.8f, 10f, 1f));
             
             m.AddBall(new Ball((-70, 0), (500f, 5f), 0.8f, 10f, 1f));
-            m.AddBall(new Ball((20, 0), 0, 0.8f, 10f, 1f));
-            m.AddBall(new Ball((45, 0), 0, 0.8f, 10f, 1f));
-            m.AddBall(new Ball((70, 0), 0, 0.8f, 10f, 1f));
-            m.AddBall(new Ball((45, 25), 0, 0.8f, 10f, 1f));
-            m.AddBall(new Ball((45, -25), 0, 0.8f, 10f, 1f));
-            m.AddBall(new Ball((70, 25), 0, 0.8f, 10f, 1f));
-            m.AddBall(new Ball((70, -25), 0, 0.8f, 10f, 1f));
-            m.AddBall(new Ball((70, 50), 0, 0.8f, 10f, 1f));
-            m.AddBall(new Ball((70, -50), 0, 0.8f, 10f, 1f));
+            m.AddBall(new Ball((30, 0), 0, 0.8f, 10f, 1f));
+            m.AddBall(new Ball((55, 0), 0, 0.8f, 10f, 1f));
+            m.AddBall(new Ball((80, 0), 0, 0.8f, 10f, 1f));
+            m.AddBall(new Ball((55, 25), 0, 0.8f, 10f, 1f));
+            m.AddBall(new Ball((55, -25), 0, 0.8f, 10f, 1f));
+            m.AddBall(new Ball((80, 25), 0, 0.8f, 10f, 1f));
+            m.AddBall(new Ball((80, -25), 0, 0.8f, 10f, 1f));
+            m.AddBall(new Ball((80, 50), 0, 0.8f, 10f, 1f));
+            m.AddBall(new Ball((80, -50), 0, 0.8f, 10f, 1f));
             m.ElapseTo(1000f);
             
             Program p = new Program(800, 500, "WEEEEEEEEE", m);
@@ -65,6 +67,7 @@ namespace PHYSICS
             : base(width, height, title)
         {
             m.Fill(_renders);
+            _walls = m.Walls;
             _tr = new TextRenderer();
             _et = m.Elapsed;
         }
@@ -74,6 +77,7 @@ namespace PHYSICS
         private bool _playing = false;
         private bool _reversed = false;
         private List<ObjectRender> _renders = new List<ObjectRender>(20);
+        private List<Wall> _walls;
         private TextRenderer _tr;
         
         private bool ElapseTime(floatv time)
@@ -120,18 +124,43 @@ namespace PHYSICS
             e.Context.Projection = Matrix4.CreateOrthographic(s.X, s.Y, 0f, 1f);
             e.Context.Model = Matrix.Identity;
             
-            e.Context.DrawBorderBox(BOUNDS, ColourF.Zero, 5, ColourF.DarkGreen);
-            
             Span<ObjectRender> span = CollectionsMarshal.AsSpan(_renders);
             for (int i = 0; i < span.Length; i++)
             {
                 e.Context.Render(span[i]);
             }
             
+            Span<Wall> walls = CollectionsMarshal.AsSpan(_walls);
+            for (int i = 0; i < walls.Length; i++)
+            {
+                Wall w = walls[i];
+                DrawLine(e.Context, w.A, w.B, 5);
+            }
+            
             e.Context.Model = new STMatrix(15, (0, s.Y * 0.5f - 15));
             _tr.DrawCentred(e.Context, $"{_time}", Shapes.SampleFont, 0, 0);
         }
-
+        
+        private static void DrawLine(IDrawingContext dc, Vector2 a, Vector2 b, floatv thick)
+        {
+            Vector2 diff = b - a;
+            floatv length = diff.Length;
+            
+            floatv div = 1 / length;
+            floatv cos = diff.X * div;
+            floatv sin = diff.Y * div;
+            Matrix4 mat = new Matrix4(
+                (cos, sin, 0, 0),
+                (-sin, cos, 0, 0),
+                (0, 0, 1, 0),
+                (0, 0, 0, 1)
+            );
+            dc.Model = mat * Matrix4.CreateTranslation((a + b) * 0.5f);
+            dc.RenderState.PostMatrixMods = false;
+            dc.DrawRoundedBox(
+                new Box(0, (length + thick, thick)), ColourF.BlueViolet, 0.5f);
+        }
+        
         protected override void OnKeyDown(KeyEventArgs e)
         {
             base.OnKeyDown(e);

@@ -29,12 +29,14 @@ namespace PHYSICS
         // private floatv _wallElas;
         
         public floatv Elapsed { get; private set; }
+        public List<Wall> Walls => _walls;
         
         public void AddBall(Ball b)
         {
             _balls.Add(new Wrap<Ball>(b));
             _paths.Add(new Path(b.Location, b.Velocity));
         }
+        public void AddWall(Wall w) => _walls.Add(w);
         
         public void Fill(List<ObjectRender> or)
         {
