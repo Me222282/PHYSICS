@@ -16,6 +16,8 @@ namespace PHYSICS
         
         public T Obj;
         public RefObj Collide;
+        // Issue with acceleration
+        // Issue with touching objects
         public RefObj LastCollide;
         public floatv ColTime;
         public floatv ElapsedTime;

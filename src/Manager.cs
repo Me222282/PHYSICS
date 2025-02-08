@@ -150,12 +150,14 @@ namespace PHYSICS
                     RefObj ro = new RefObj(i, ObjType.Ball);
                     
                     // all potential checks covered here
-                    if (o1.CollideTaken || i == change1.Index
-                        || (!change2.IsWall() && i == change2.Index))
+                    // with velocity of 0, is has no path
+                    if ((o1.CollideTaken && o1.Obj.Velocity != 0) ||
+                        i == change1.Index ||
+                        (!change2.IsWall() && i == change2.Index))
                     {
-                        o1.CollideTaken = false;
                         FindAllCol(o1, -1, span, walls, time, ro);
                     }
+                    o1.CollideTaken = false;
                     
                     // check all availiable collisions for earliest
                     if (o1.ColTime < minT)
@@ -178,7 +180,9 @@ namespace PHYSICS
             Wrap<Ball> o1, Wrap<Ball> o2, floatv time,
             Span<Wrap<Ball>> span, RefObj r1, RefObj r2)
         {
-            if (o1.LastCollide == r2) { return -1; }
+            if (o1.LastCollide == r2 ||
+            // could be done earlier?
+                (o1.Obj.Velocity == 0 && o2.Obj.Velocity == 0)) { return -1; }
             
             // Too far out of sync
             if (o2.ColTime < o1.ElapsedTime || o1.ColTime < o2.ElapsedTime) { return -1; }

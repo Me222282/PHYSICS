@@ -35,17 +35,29 @@ namespace PHYSICS
             m.AddWall(new Wall((150, 70), (120, 100), 1));
             m.AddWall(new Wall((150, -70), (120, -100), 1));
             
-            m.AddBall(new Ball((-70, 0), (500f, 5f), 0.8f, 10f, 1f));
-            m.AddBall(new Ball((30, 0), 0, 0.8f, 10f, 1f));
-            m.AddBall(new Ball((55, 0), 0, 0.8f, 10f, 1f));
-            m.AddBall(new Ball((80, 0), 0, 0.8f, 10f, 1f));
-            m.AddBall(new Ball((55, 25), 0, 0.8f, 10f, 1f));
-            m.AddBall(new Ball((55, -25), 0, 0.8f, 10f, 1f));
-            m.AddBall(new Ball((80, 25), 0, 0.8f, 10f, 1f));
-            m.AddBall(new Ball((80, -25), 0, 0.8f, 10f, 1f));
-            m.AddBall(new Ball((80, 50), 0, 0.8f, 10f, 1f));
-            m.AddBall(new Ball((80, -50), 0, 0.8f, 10f, 1f));
+            floatv e = 1f;
+            
+            m.AddBall(new Ball((-70, 0), (500f, 5f), e, 10f, 1f));
+            m.AddBall(new Ball((30, 0), 0, e, 10f, 1f));
+            m.AddBall(new Ball((55, 0), 0, e, 10f, 1f));
+            m.AddBall(new Ball((80, 0), 0, e, 10f, 1f));
+            m.AddBall(new Ball((55, 25), 0, e, 10f, 1f));
+            m.AddBall(new Ball((55, -25), 0, e, 10f, 1f));
+            m.AddBall(new Ball((80, 25), 0, e, 10f, 1f));
+            m.AddBall(new Ball((80, -25), 0, e, 10f, 1f));
+            m.AddBall(new Ball((80, 50), 0, e, 10f, 1f));
+            m.AddBall(new Ball((80, -50), 0, e, 10f, 1f));
+            // m.AddBall(new Ball((50.1f, 0), 0, e, 10f, 1f));
+            // m.AddBall(new Ball((70.2f, 0), 0, e, 10f, 1f));
+            // m.AddBall(new Ball((50.1f, 20.1f), 0, e, 10f, 1f));
+            // m.AddBall(new Ball((50.1f, -20.1f), 0, e, 10f, 1f));
+            // m.AddBall(new Ball((70.2f, 20.1f), 0, e, 10f, 1f));
+            // m.AddBall(new Ball((70.2f, -20.1f), 0, e, 10f, 1f));
+            // m.AddBall(new Ball((70.2f, 40.2f), 0, e, 10f, 1f));
+            // m.AddBall(new Ball((70.2f, -40.2f), 0, e, 10f, 1f));
+            double t = Core.Time;
             m.ElapseTo(1000f);
+            Console.WriteLine(Core.Time - t);
             
             Program p = new Program(800, 500, "PHYSICS", m);
             p.Run();
